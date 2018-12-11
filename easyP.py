@@ -119,7 +119,7 @@ class easyP:
             response = self.__create_response(
                 rowcount=None,
                 results=None,
-                status"ERROR",
+                status="ERROR",
                 error="ERROR: %s"%e
             )
 
