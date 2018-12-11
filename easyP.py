@@ -4,8 +4,6 @@ import psycopg2.extras
 
 
 class easyP:
-
-
 	def __init__(self, HOST, DB, USERNAME, PASSWORD, PORT=5432):
 		self.__host = HOST
 		self.__db = DB
@@ -16,6 +14,7 @@ class easyP:
 		self.__connection = None
 		self.__cursor = None
 
+
 	def checkconnection(self):
 		if self.__connection.close != 0:
 			self.connect()
@@ -25,19 +24,22 @@ class easyP:
 		self.disconnect()
 		self.connect()
 
+
 	def enableLogging(self):
 		self.__sqlLogging = True
+
 
 	def connect(self):
 		self.__connection = psycopg2.connect(host=self.__host, database=self.__db, user=self.__username, password=self.__password, port=self.__port)
 		self.__cursor = self.__connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+
 	def disconnect(self):
 		if self.__connection:
 			self.__connection.close()
 
-	def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None):
 
+	def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None):
 		response = {}
 		response['rowcount'] = None
 		response['results'] = None
@@ -45,7 +47,6 @@ class easyP:
 		response['error'] = "returned without executing"
 
 		try:
-
 			selectSQL = """SELECT """
 
 			if len(select) > 0:
@@ -117,9 +118,7 @@ class easyP:
 		return response
 
 
-
 	def update(self, table, setCols = {}, where = None):
-		
 		response = {}
 		response['rowcount'] = None
 		response['results'] = None
@@ -186,7 +185,6 @@ class easyP:
 				response['status'] = "ERROR"
 				response['error'] = "ERROR: %s"%e
 
-
 		except Exception, e:
 			response['rowcount'] = None
 			response['results'] = None
@@ -194,6 +192,7 @@ class easyP:
 			response['error'] = "ERROR: %s"%e
 
 		return response
+
 
 	def batchInsert(self, table, insertObjects = None):
 		response = {}
@@ -228,7 +227,6 @@ class easyP:
 				insertSQL = insertSQL[:-2]
 				insertSQL += " returning *"
 
-
 			else:
 				e = "insert needs atleast 1 pair value and cannot be None"
 				response['rowcount'] = None
@@ -236,8 +234,6 @@ class easyP:
 				response['status'] = "ERROR"
 				response['error'] = "ERROR: %s"%e
 				return response
-
-
 
 			if self.__sqlLogging:
 				print "Executing Query: %s"%insertSQL
@@ -260,7 +256,6 @@ class easyP:
 				response['status'] = "ERROR"
 				response['error'] = "ERROR: %s"%e
 
-
 		except Exception, e:
 			response['rowcount'] = None
 			response['results'] = None
@@ -268,6 +263,7 @@ class easyP:
 			response['error'] = "ERROR: %s"%e
 
 		return response
+
 
 	def insert(self, table, valuePairs = None):
 		response = {}
@@ -316,7 +312,6 @@ class easyP:
 				response['results'] = None
 				response['status'] = "ERROR"
 				response['error'] = "ERROR: %s"%e
-
 
 		except Exception, e:
 			response['rowcount'] = None
@@ -382,7 +377,6 @@ class easyP:
 				response['status'] = "ERROR"
 				response['error'] = "ERROR: %s"%e
 
-
 		except Exception, e:
 			response['rowcount'] = None
 			response['results'] = None
@@ -418,6 +412,7 @@ class easyP:
 
 		return response
 
+
 	def queryFetchall(self):
 		response = {}
 		response['rowcount'] = None
@@ -437,6 +432,7 @@ class easyP:
 			response['error'] = "ERROR: %s"%e
 
 		return response
+
 
 	def queryCommit(self):
 		response = {}
@@ -464,4 +460,3 @@ class easyP:
 			response['error'] = "ERROR: %s"%e
 
 		return response
-
