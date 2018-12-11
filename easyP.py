@@ -14,6 +14,15 @@ class easyP:
         self.__connection = None
         self.__cursor = None
 
+    
+    def __create_response(self, rowcount = None, results = [], status = 'ERROR', error = 'Returned without executing'):
+        return {
+            'rowcount': rowcount,
+            'results': results,
+            'status': status,
+            'error': error
+        }
+
 
     def checkconnection(self):
         if self.__connection.close != 0:
@@ -40,12 +49,7 @@ class easyP:
 
 
     def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "ERROR"
-        response['error'] = "returned without executing"
-
+        response = self.__create_response()
         try:
             selectSQL = """SELECT """
 
@@ -104,27 +108,26 @@ class easyP:
             self.checkconnection()
             self.__cursor.execute(selectSQL)
 
-            response['rowcount'] = self.__cursor.rowcount
-            response['results'] = self.__cursor.fetchall()
-            response['status'] = "OK"
-            response['error'] = None
+            response = self.__create_response(
+                rowcount=self.__cursor.rowcount,
+                results=self.__cursor.fetchall(),
+                status="OK",
+                error=None
+            )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount=None,
+                results=None,
+                status"ERROR",
+                error="ERROR: %s"%e
+            )
 
         return response
 
 
     def update(self, table, setCols = {}, where = None):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "ERROR"
-        response['error'] = "returned without executing"
-
+        response = self.__create_response()
         try:
 
             updateSQL = "UPDATE %s "%table
@@ -139,10 +142,12 @@ class easyP:
                 updateSQL += " "
             else:
                 e = "set clause cannot be empty or null"
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
 
                 return response
 
@@ -170,36 +175,38 @@ class easyP:
             try:
                 self.checkconnection()
                 self.__cursor.execute(updateSQL)
-                response['rowcount'] = self.__cursor.rowcount
-                response['results'] = self.__cursor.fetchall()
-                response['status'] = "OK"
-                response['error'] = None
+                response = self.__create_response(
+                    rowcount=self.__cursor.rowcount,
+                    results=self.__cursor.fetchall(),
+                    status="OK",
+                    error=None
+                )
                 self.__connection.commit()
             except Exception, e:
 
                 if self.__connection:
                     self.__connection.rollback()
 
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def batchInsert(self, table, insertObjects = None):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "ERROR"
-        response['error'] = "returned without executing"
+        response = self.__create_response()
         try:
             insertSQL = ""
             pairCols = ""
@@ -229,10 +236,12 @@ class easyP:
 
             else:
                 e = "insert needs atleast 1 pair value and cannot be None"
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
                 return response
 
             if self.__sqlLogging:
@@ -241,36 +250,38 @@ class easyP:
             try:
                 self.checkconnection()
                 self.__cursor.execute(insertSQL)
-                response['rowcount'] = self.__cursor.rowcount
-                response['results'] = self.__cursor.fetchall()
-                response['status'] = "OK"
-                response['error'] = None
+                response = self.__create_response(
+                    rowcount = self.__cursor.rowcount,
+                    results = self.__cursor.fetchall(),
+                    status = "OK",
+                    error = None
+                )
                 self.__connection.commit()
             except Exception, e:
 
                 if self.__connection:
                     self.__connection.rollback()
 
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def insert(self, table, valuePairs = None):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "ERROR"
-        response['error'] = "returned without executing"
+        response = self.__create_response()
         try:
             insertSQL = ""
             pairCols = ""
@@ -284,10 +295,12 @@ class easyP:
                 pairVals = pairVals[:-2]
             else:
                 e = "insert needs atleast 1 pair value and cannot be None"
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
                 return response
 
             insertSQL += "Insert INTO %s (%s) VALUES (%s) RETURNING * "%(table, pairCols, pairVals)
@@ -298,44 +311,46 @@ class easyP:
             try:
                 self.checkconnection()
                 self.__cursor.execute(insertSQL)
-                response['rowcount'] = self.__cursor.rowcount
-                response['results'] = self.__cursor.fetchall()
-                response['status'] = "OK"
-                response['error'] = None
+                response = self.__create_response(
+                    rowcount = self.__cursor.rowcount,
+                    results = self.__cursor.fetchall(),
+                    status = "OK",
+                    error = None
+                )
                 self.__connection.commit()
             except Exception, e:
 
                 if self.__connection:
                     self.__connection.rollback()
 
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def delete(self, table = None, where = None):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "ERROR"
-        response['error'] = "returned without executing"
-
+        response = self.__create_response()
         try:
             if table is None:
-                response = {}
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "Table name not provided"
+                response = self.__create_response(
+                    rowcount = None,
+                    results = None,
+                    status = "ERROR",
+                    error = "Table name not provided"
+                )
                 return response
 
             deleteSQL = "DELETE FROM %s "%table
@@ -362,100 +377,105 @@ class easyP:
             try:
                 self.checkconnection()
                 self.__cursor.execute(deleteSQL)
-                response['rowcount'] = self.__cursor.rowcount
-                response['results'] = None
-                response['status'] = "OK"
-                response['error'] = None
+                response = self.__create_response(
+                    rowcount = self.__cursor.rowcount,
+                    results = None,
+                    status = "OK",
+                    error = None
+                )
                 self.__connection.commit()
             except Exception, e:
 
                 if self.__connection:
                     self.__connection.rollback()
 
-                response['rowcount'] = None
-                response['results'] = None
-                response['status'] = "ERROR"
-                response['error'] = "ERROR: %s"%e
+                response = self.__create_response(
+                    rowcount= None,
+                    results= None,
+                    status= "ERROR",
+                    error= "ERROR: %s"%e
+                )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def executeRawQuery(self, queryString, arguments=[]):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "OK"
-        response['error'] = "returned without executing"
+        response = self.__create_response()
         try:
             self.checkconnection()
             self.__cursor.execute(self.__cursor.mogrify(queryString, arguments))
             
-            response['rowcount'] = self.__cursor.rowcount
-            response['results'] = None
-            response['status'] = "OK"
-            response['error'] = None
+            response = self.__create_response(
+                rowcount = self.__cursor.rowcount,
+                results = None,
+                status = "OK",
+                error = None
+            )
 
         except Exception, e:
             if self.__connection:
                 self.__connection.rollback()
 
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def queryFetchall(self):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "OK"
-        response['error'] = "returned without executing"
+        response = self.__create_response()
         try:
-            response['rowcount'] = self.__cursor.rowcount
-            response['results'] = self.__cursor.fetchall()
-            response['status'] = "OK"
-            response['error'] = None
+            response = self.__create_response(
+                rowcount = self.__cursor.rowcount,
+                results = self.__cursor.fetchall(),
+                status = "OK",
+                error = None,
+            )
 
         except Exception, e:
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
 
 
     def queryCommit(self):
-        response = {}
-        response['rowcount'] = None
-        response['results'] = None
-        response['status'] = "OK"
-        response['error'] = "returned without executing"
+        response = self.__create_response()
         try:
             self.__connection.commit()
-
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "OK"
-            response['error'] = None
+            response = self.__create_response(
+                rowcount = None,
+                results = None,
+                status = "OK",
+                error = None
+            )
 
         except Exception, e:
 
             if self.__connection:
                 self.__connection.rollback()
 
-            response['rowcount'] = None
-            response['results'] = None
-            response['status'] = "ERROR"
-            response['error'] = "ERROR: %s"%e
+            response = self.__create_response(
+                rowcount= None,
+                results= None,
+                status= "ERROR",
+                error= "ERROR: %s"%e
+            )
 
         return response
