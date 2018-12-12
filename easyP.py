@@ -68,9 +68,11 @@ class easyP:
         self.__sqlLogging = True
 
 
-    def connect(self):
+    def connect(self, encoding='UNICODE'):
         self.__connection = psycopg2.connect(host=self.__host, database=self.__db, user=self.__username, password=self.__password, port=self.__port)
+        self.__connection.set_client_encoding(encoding)
         self.__cursor = self.__connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
 
 
     def disconnect(self):
