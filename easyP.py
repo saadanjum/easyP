@@ -24,6 +24,36 @@ class easyP:
         }
 
 
+    def __parse_where(self, where):
+        selectSQL = ''
+        if where and type(where) == type({}):
+            selectSQL += "WHERE "
+            for field in where:
+                if where[field] is None:
+                    selectSQL += "%s IS NULL AND "%(field)
+                elif where[field].lower() == 'null':
+                    selectSQL += "%s IS NULL AND "%(field)
+                elif where[field].lower() == 'not null':
+                    selectSQL += "%s IS NOT NULL AND "%(field)
+                elif type(where[field]) == type("") and (where[field].startswith("< ") or where[field].startswith("> ") or where[field].startswith("<= ") or where[field].startswith(">= ")):
+                    whereCompare = where[field].split(" ")
+                    selectSQL += "%s %s %s AND "%(field, whereCompare[0], whereCompare[1])
+                elif type(where[field]) == type("") and (where[field].lower().startswith('like ')):
+                    likeClause = where[field].split(" ")
+                    like = likeClause[1].replace("'", "")
+                    selectSQL += "LIKE '{0}' AND ".format(like)
+                elif type(where[field]) == type("") and (where[field].lower().startswith('in (')):
+                    inArray = where[field].split(" ")
+                    selectSQL += "IN {0} AND ".format(inArray[1])
+                elif type(where[field]) == type("") and (where[field].lower().startswith('e>>')):
+                    expression = where[field][3:]
+                    selectSQL += "{0} AND ".format(expression)
+
+            selectSQL = selectSQL[:-4]
+
+        return selectSQL
+
+
     def checkconnection(self):
         if self.__connection.close != 0:
             self.connect()
@@ -65,27 +95,7 @@ class easyP:
                 selectSQL += "count(*) "
 
             selectSQL += " FROM %s "%table
-
-            if where and type(where) == type({}):
-                firstField = True
-                for field in where:
-                    selectSQL += "WHERE " if firstField else ""
-
-
-                    if where[field] is None:
-                        selectSQL += "%s IS NULL AND "%(field)
-                    elif where[field].lower() == 'null':
-                        selectSQL += "%s IS NULL AND "%(field)
-                    elif where[field].lower() == 'not null':
-                        selectSQL += "%s IS NOT NULL AND "%(field)
-                    elif type(where[field]) == type("") and (where[field].startswith("< ") or where[field].startswith("> ") or where[field].startswith("<= ") or where[field].startswith(">= ")):
-                        whereCompare = where[field].split(" ")
-                        selectSQL += "%s %s %s AND "%(field, whereCompare[0], whereCompare[1])
-                    else:
-                        selectSQL += "%s = "%(field) + self.__cursor.mogrify("%s AND ",[where[field]])
-                    firstField = False
-
-                selectSQL = selectSQL[:-4]
+            selectSQL += self.__parse_where(where)
 
             if orderBy and type(orderBy) == type([]):
                 selectSQL += " ORDER BY "
@@ -151,21 +161,7 @@ class easyP:
 
                 return response
 
-            if where and type(where) == type({}):
-                firstField = True
-                for field in where:
-                    updateSQL += "WHERE " if firstField else ""
-                    if where[field] is None:
-                        updateSQL += "%s IS NULL AND "%(field)
-                    elif type(where[field]) == type("") and where[field].lower() == 'null':
-                        updateSQL += "%s IS NULL AND "%(field)
-                    elif type(where[field]) == type("") and where[field].lower() == 'not null':
-                        updateSQL += "%s IS NOT NULL AND "%(field)
-                    else:
-                        updateSQL += "%s = "%(field) + self.__cursor.mogrify("%s AND ",[where[field]])
-                    firstField = False
-
-                updateSQL = updateSQL[:-4]
+            updateSQL += self.__parse_where(where)
 
             updateSQL += " RETURNING *"
 
@@ -355,21 +351,7 @@ class easyP:
 
             deleteSQL = "DELETE FROM %s "%table
 
-            if where and type(where) == type({}):
-                firstField = True
-                for field in where:
-                    deleteSQL += "WHERE " if firstField else ""
-                    if where[field] is None:
-                        deleteSQL += "%s IS NULL AND "%(field)
-                    elif where[field].lower() == 'null':
-                        deleteSQL += "%s IS NULL AND "%(field)
-                    elif where[field].lower() == 'not null':
-                        deleteSQL += "%s IS NOT NULL AND "%(field)
-                    else:
-                        deleteSQL += "%s = "%(field) + self.__cursor.mogrify("%s AND ",[where[field]])
-                    firstField = False
-
-                deleteSQL = deleteSQL[:-4]
+            deleteSQL += self.__parse_where(where)
 
             if self.__sqlLogging:
                 print "Executing Query: %s"%deleteSQL
