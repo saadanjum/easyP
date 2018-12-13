@@ -41,13 +41,13 @@ class easyP:
                 elif type(where[field]) == type("") and (where[field].lower().startswith('like ')):
                     likeClause = where[field].split(" ")
                     like = likeClause[1].replace("'", "")
-                    selectSQL += "LIKE '{0}' AND ".format(like)
+                    selectSQL += "{0} LIKE '{1}' AND ".format(field, like)
                 elif type(where[field]) == type("") and (where[field].lower().startswith('in (')):
                     inArray = where[field].split(" ")
-                    selectSQL += "IN {0} AND ".format(inArray[1])
+                    selectSQL += "{0} IN {1} AND ".format(field, inArray[1])
                 elif type(where[field]) == type("") and (where[field].lower().startswith('e>>')):
                     expression = where[field][3:]
-                    selectSQL += "{0} AND ".format(expression)
+                    selectSQL += "{0} {1} AND ".format(field, expression)
 
             selectSQL = selectSQL[:-4]
 
