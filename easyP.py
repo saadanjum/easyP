@@ -80,7 +80,7 @@ class easyP:
             self.__connection.close()
 
 
-    def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None):
+    def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None, groupBy=None):
         response = self.__create_response()
         try:
             selectSQL = """SELECT """
@@ -98,6 +98,13 @@ class easyP:
 
             selectSQL += " FROM %s "%table
             selectSQL += self.__parse_where(where)
+
+            if groupBy and type(groupBy) == type([]):
+                selectSQL += ' GROUP BY '
+                for col in groupBy:
+                    selectSQL += '{0}, '.format(col)
+                
+                selectSQL = selectSQL[:-2]
 
             if orderBy and type(orderBy) == type([]):
                 selectSQL += " ORDER BY "
