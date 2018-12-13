@@ -85,3 +85,16 @@ response = db.select(table='movies',
                          'col1': 'IN (1, 2, 3, 4)'
                      })
 ```
+### Group By
+Group by can be applied in the query as follows
+```
+response = db.select(table='movies', 
+                    select=[
+                        'vote_average', 
+                        'count(*)'
+                    ],
+                    groupBy=[
+                        'vote_average'
+                    ])
+```
+
