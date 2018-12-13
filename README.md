@@ -98,3 +98,12 @@ response = db.select(table='movies',
                     ])
 ```
 
+### Order By
+Order by can be applied by providing the name of column in a list along with the direction.
+```
+response = db.select(table='movies',
+                    select=['*'], 
+                    orderBy=['vote_average asc', 'budget desc'],
+                    limit=10)
+```
+
