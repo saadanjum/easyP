@@ -106,4 +106,44 @@ response = db.select(table='movies',
                     orderBy=['vote_average asc', 'budget desc'],
                     limit=10)
 ```
+### Insert
+```
+response = db.insert(table='movies',
+                    valuePairs={
+                        'col1': 'value 1',
+                        'col2': 1000
+                    })
+```
+**NOTE:** Column names provided in valuePairs should exist in the database table.
+
+### Batch Insert
+You can also batch insert by providing a list of dictionaries.
+```
+response = db.batchInsert(table='movies',
+                    insertObjects = [
+                        {
+                            'col1': 'abc',
+                            'col2': 1000,
+                        },
+                        {
+                            'col1': 'xyz',
+                            'col2': 2000,
+                        }
+                    ])
+```
+
+### Delete
+```
+response = db.select(table='movies',
+                    where={
+                        'col1': 'abc'
+                    })
+```
+
+### Update
+```
+response = db.update(table='movies',
+                    setCols = {'rating': 5}, 
+                    where = {'col1': 'abc'})
+```
 
