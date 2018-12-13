@@ -24,6 +24,24 @@ class easyP:
         }
 
 
+    def __table_not_provided(self, table):
+        ret = True
+        response = None
+        if table is None:
+            response = self.__create_response(
+                rowcount = None,
+                results = None,
+                status = "ERROR",
+                error = "Table name not provided"
+            )
+            return response
+        else:
+            ret = False
+        
+        return (ret, response)
+        
+
+
     def __parse_where(self, where):
         selectSQL = ''
         if where and type(where) == type({}):
@@ -82,6 +100,11 @@ class easyP:
 
     def select(self, table, select = [], where = None, orderBy = None, limit = None, offset = None, distinctOn = None, groupBy=None):
         response = self.__create_response()
+
+        table_not_provided = self.__table_not_provided(table)
+        if table_not_provided:
+            return table_not_provided[1]
+
         try:
             selectSQL = """SELECT """
 
@@ -145,8 +168,13 @@ class easyP:
         return response
 
 
-    def update(self, table, setCols = {}, where = None):
+    def update(self, table, setCols = {}, where = None, returnResults = False):
         response = self.__create_response()
+
+        table_not_provided = self.__table_not_provided(table)
+        if table_not_provided:
+            return table_not_provided[1]
+
         try:
 
             updateSQL = "UPDATE %s "%table
@@ -172,7 +200,8 @@ class easyP:
 
             updateSQL += self.__parse_where(where)
 
-            updateSQL += " RETURNING *"
+            if returnResults:
+                updateSQL += " RETURNING *"
 
             if self.__sqlLogging:
                 print "Executing Query: %s"%updateSQL
@@ -210,8 +239,13 @@ class easyP:
         return response
 
 
-    def batchInsert(self, table, insertObjects = None):
+    def batchInsert(self, table, insertObjects = None, returnResults=False):
         response = self.__create_response()
+
+        table_not_provided = self.__table_not_provided(table)
+        if table_not_provided:
+            return table_not_provided[1]
+
         try:
             insertSQL = ""
             pairCols = ""
@@ -237,7 +271,9 @@ class easyP:
                         insertSQL += "(%s), "%(pairVals)
 
                 insertSQL = insertSQL[:-2]
-                insertSQL += " returning *"
+
+                if returnResults:
+                    insertSQL += " returning *"
 
             else:
                 e = "insert needs atleast 1 pair value and cannot be None"
@@ -287,6 +323,11 @@ class easyP:
 
     def insert(self, table, valuePairs = None):
         response = self.__create_response()
+
+        table_not_provided = self.__table_not_provided(table)
+        if table_not_provided:
+            return table_not_provided[1]
+
         try:
             insertSQL = ""
             pairCols = ""
@@ -349,14 +390,9 @@ class easyP:
     def delete(self, table = None, where = None):
         response = self.__create_response()
         try:
-            if table is None:
-                response = self.__create_response(
-                    rowcount = None,
-                    results = None,
-                    status = "ERROR",
-                    error = "Table name not provided"
-                )
-                return response
+            table_not_provided = self.__table_not_provided(table)
+            if table_not_provided:
+                return table_not_provided[1]
 
             deleteSQL = "DELETE FROM %s "%table
 
