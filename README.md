@@ -147,3 +147,16 @@ response = db.update(table='movies',
                     where = {'col1': 'abc'})
 ```
 
+### Executing Raw Query
+If you have a query which is complex and cannot be handled by the defined functions you can always write and execute SQL queries. In this case the flow follows the traditional execute > fetch (if any) > commit control flow.
+```
+# execute
+response = db.executeRawQuery("INSERT INTO movies (col1, col2) VALUES ('abc', 123) RETURNING *")
+
+# fetch
+if response['status'] == 'OK':
+    data = db.queryFetchall()
+
+# commit
+r = db.queryCommit()
+```
