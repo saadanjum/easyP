@@ -48,14 +48,14 @@ class easyP:
             selectSQL += "WHERE "
             for field in where:
                 if where[field] is None:
-                    selectSQL += "%s IS NULL AND "%(field)
+                    selectSQL += "{0} IS NULL AND ".format(field)
                 elif where[field].lower() == 'null':
-                    selectSQL += "%s IS NULL AND "%(field)
+                    selectSQL += "{0} IS NULL AND ".format(field)
                 elif where[field].lower() == 'not null':
-                    selectSQL += "%s IS NOT NULL AND "%(field)
+                    selectSQL += "{0} IS NOT NULL AND ".format(field)
                 elif type(where[field]) == type("") and (where[field].startswith("< ") or where[field].startswith("> ") or where[field].startswith("<= ") or where[field].startswith(">= ")):
                     whereCompare = where[field].split(" ")
-                    selectSQL += "%s %s %s AND "%(field, whereCompare[0], whereCompare[1])
+                    selectSQL += "{0} {1} {2} AND ".format(field, whereCompare[0], whereCompare[1])
                 elif type(where[field]) == type("") and (where[field].lower().startswith('like ')):
                     likeClause = where[field].split(" ")
                     like = likeClause[1].replace("'", "")
@@ -110,16 +110,16 @@ class easyP:
 
             if len(select) > 0:
                 if distinctOn and type(distinctOn) == type("a"):
-                    selectSQL += "DISTINCT ON (%s) "%distinctOn
+                    selectSQL += "DISTINCT ON ({0}) ".format(distinctOn)
 
                 for select in select:
-                    selectSQL += "%s, "%select
+                    selectSQL += "{0}, ".format(select)
 
                 selectSQL = selectSQL[:-2]
             else:
                 selectSQL += "count(*) "
 
-            selectSQL += " FROM %s "%table
+            selectSQL += " FROM {0} ".format(table)
             selectSQL += self.__parse_where(where)
 
             if groupBy and type(groupBy) == type([]):
@@ -132,21 +132,21 @@ class easyP:
             if orderBy and type(orderBy) == type([]):
                 selectSQL += " ORDER BY "
                 if distinctOn and type(distinctOn) == type(""):
-                    selectSQL += " %s,"%distinctOn
+                    selectSQL += " {0},".format(distinctOn)
                 for field in orderBy:
-                    selectSQL += " %s,"%field
+                    selectSQL += " {0},".format(field)
 
                 selectSQL = selectSQL[:-1]
 
             if limit and type(limit) == type(1):
-                selectSQL += " LIMIT %s "%limit
+                selectSQL += " LIMIT {0} ".format(limit)
 
             if offset and type(offset) == type(1):
-                selectSQL += " OFFSET %s "%offset
+                selectSQL += " OFFSET {0} ".format(offset)
 
 
             if self.__sqlLogging:
-                print "Executing Query: %s"%selectSQL
+                print("Executing Query: {0}",format(selectSQL))
             self.checkconnection()
             self.__cursor.execute(selectSQL)
 
@@ -162,7 +162,7 @@ class easyP:
                 rowcount=None,
                 results=None,
                 status="ERROR",
-                error="ERROR: %s"%e
+                error="ERROR: {0}".format(e)
             )
 
         return response
@@ -177,14 +177,14 @@ class easyP:
 
         try:
 
-            updateSQL = "UPDATE %s "%table
+            updateSQL = "UPDATE {0} ".format(table)
 
             if setCols and type(setCols) == type({}) and len(setCols) > 0:
                 updateSQL += "SET "
                 for field in setCols:
                     if field == "":
                         setCols[field] = None
-                    updateSQL += "%s = "%(field) + self.__cursor.mogrify("%s, ",[setCols[field]])
+                    updateSQL += "{0} = ".format(field) + self.__cursor.mogrify("%s, ",[setCols[field]])
                 updateSQL = updateSQL[:-2]
                 updateSQL += " "
             else:
@@ -193,7 +193,7 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
 
                 return response
@@ -204,7 +204,7 @@ class easyP:
                 updateSQL += " RETURNING *"
 
             if self.__sqlLogging:
-                print "Executing Query: %s"%updateSQL
+                print("Executing Query: {0}".format(updateSQL))
 
             try:
                 self.checkconnection()
@@ -225,7 +225,7 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
 
         except Exception, e:
@@ -233,7 +233,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -251,7 +251,7 @@ class easyP:
             pairCols = ""
             pairVals = ""
 
-            insertSQL += "Insert INTO %s "%(table)
+            insertSQL += "Insert INTO {0} ".format(table)
 
             if insertObjects and type(insertObjects) == type([]) and len(insertObjects) > 0:
                 first = True
@@ -259,16 +259,16 @@ class easyP:
                     pairCols = ""
                     pairVals = ""
                     for field in valuePairs:
-                        pairCols += "%s, "%field
+                        pairCols += "{0}, ".format(field)
                         pairVals += self.__cursor.mogrify("%s, ",[valuePairs[field]])
                     pairCols = pairCols[:-2]
                     pairVals = pairVals[:-2]
 
                     if first:
                         first = False
-                        insertSQL += "(%s) VALUES (%s), "%(pairCols, pairVals)
+                        insertSQL += "({0}) VALUES ({1}), ".format(pairCols, pairVals)
                     else:
-                        insertSQL += "(%s), "%(pairVals)
+                        insertSQL += "({0}), ".format(pairVals)
 
                 insertSQL = insertSQL[:-2]
 
@@ -281,12 +281,12 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
                 return response
 
             if self.__sqlLogging:
-                print "Executing Query: %s"%insertSQL
+                print("Executing Query: {0}".format(insertSQL))
 
             try:
                 self.checkconnection()
@@ -307,7 +307,7 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
 
         except Exception, e:
@@ -315,7 +315,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -335,7 +335,7 @@ class easyP:
 
             if valuePairs and type(valuePairs) == type({}) and len(valuePairs) > 0:
                 for field in valuePairs:
-                    pairCols += "%s, "%field
+                    pairCols += "{0}, ".format(field)
                     pairVals += self.__cursor.mogrify("%s, ",[valuePairs[field]])
                 pairCols = pairCols[:-2]
                 pairVals = pairVals[:-2]
@@ -345,14 +345,14 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
                 return response
 
-            insertSQL += "Insert INTO %s (%s) VALUES (%s) RETURNING * "%(table, pairCols, pairVals)
+            insertSQL += "Insert INTO {0} ({1}) VALUES ({2}) RETURNING * ".format(table, pairCols, pairVals)
 
             if self.__sqlLogging:
-                print "Executing Query: %s"%insertSQL
+                print("Executing Query: {0}".format(insertSQL))
 
             try:
                 self.checkconnection()
@@ -373,7 +373,7 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
 
         except Exception, e:
@@ -381,7 +381,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -394,12 +394,12 @@ class easyP:
             if table_not_provided:
                 return table_not_provided[1]
 
-            deleteSQL = "DELETE FROM %s "%table
+            deleteSQL = "DELETE FROM {0} ".format(table)
 
             deleteSQL += self.__parse_where(where)
 
             if self.__sqlLogging:
-                print "Executing Query: %s"%deleteSQL
+                print("Executing Query: {0}".format(deleteSQL))
 
             try:
                 self.checkconnection()
@@ -420,7 +420,7 @@ class easyP:
                     rowcount= None,
                     results= None,
                     status= "ERROR",
-                    error= "ERROR: %s"%e
+                    error= "ERROR: {0}".format(e)
                 )
 
         except Exception, e:
@@ -428,7 +428,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -455,7 +455,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -476,7 +476,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
@@ -502,7 +502,7 @@ class easyP:
                 rowcount= None,
                 results= None,
                 status= "ERROR",
-                error= "ERROR: %s"%e
+                error= "ERROR: {0}".format(e)
             )
 
         return response
